@@ -1,0 +1,87 @@
+{
+	"default" : "running",
+	"animations" : {
+		"idle" : {
+			"frames" : [
+				{"tile" : 0, "points" : [{"x" : 16,"y" : 16}]}
+			],
+			"speed" : 60,
+			"loop" : false,
+			"loopto" : 0
+		},
+		"running" : {
+			"frames" : [
+				{"tile" : 1, "points" : [{"x" : 16,"y" : 16}]},
+				{"tile" : 2, "points" : [{"x" : 16,"y" : 16}]},
+				{"tile" : 3, "points" : [{"x" : 16,"y" : 16}]},
+				{"tile" : 2, "points" : [{"x" : 16,"y" : 16}]}
+			],
+			"speed" : 60,
+			"loop" : false,
+			"loopto" : 0
+		},
+		"jumping" : {
+			"frames" : [
+				{"tile" : 4, "points" : [{"x" : 16,"y" : 16}]}
+			],
+			"speed" : 60,
+			"loop" : false,
+			"loopto" : 0
+		},
+		"falling" : {
+			"frames" : [
+				{"tile" : 5, "points" : [{"x" : 16,"y" : 16}]}
+			],
+			"speed" : 60,
+			"loop" : false,
+			"loopto" : 0
+		},
+		"shooting" : {
+			"frames" : [
+				{"tile" : 6, "points" : [{"x" : 16,"y" : 16}]}
+			],
+			"speed" : 60,
+			"loop" : false,
+			"loopto" : 0
+		},
+		"shootrunning" : {
+			"frames" : [
+				{"tile" : 7, "points" : [{"x" : 16,"y" : 16}]},
+				{"tile" : 8, "points" : [{"x" : 16,"y" : 16}]},
+				{"tile" : 9, "points" : [{"x" : 16,"y" : 16}]},
+				{"tile" : 8, "points" : [{"x" : 16,"y" : 16}]}
+			],
+			"speed" : 60,
+			"loop" : false,
+			"loopto" : 0
+		},
+		"shootjumping" : {
+			"frames" : [
+				{"tile" : 10, "points" : [{"x" : 16,"y" : 16}]}
+			],
+			"speed" : 60,
+			"loop" : false,
+			"loopto" : 0
+		},
+		"shootfalling" : {
+			"frames" : [
+				{"tile" : 11, "points" : [{"x" : 16,"y" : 16}]}
+			],
+			"speed" : 60,
+			"loop" : false,
+			"loopto" : 0
+		}
+	},
+	"tilesets" : [
+		{
+			"file" : "character.png",
+			"tilewidth" : 32,
+			"tileheight" : 32,
+			"imagewidth" : 128,
+			"imageheight" : 384,
+			"firstgid" : 0
+		}
+	],
+	"stateful" : true,
+	"states" : 4
+}
