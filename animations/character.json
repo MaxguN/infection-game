@@ -1,5 +1,5 @@
 {
-	"default" : "running",
+	"default" : "idle",
 	"animations" : {
 		"idle" : {
 			"frames" : [
