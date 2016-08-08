@@ -1,5 +1,6 @@
 var keys = {
 	escape : 27,
+	space : 32,
 	left : 37,
 	up : 38,
 	right : 39,

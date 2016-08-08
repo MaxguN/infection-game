@@ -4,7 +4,11 @@ function Character(x, y, level) {
 	this.x = x;
 	this.y = y;
 
-	this.speed = 512; // pixels/second
+	this.vy = 0;
+
+	this.speed = 384; // pixels/second
+	this.vspeed = 576;
+	this.gravity = 2048;
 
 	this.tiles = [];
 	this.tilesets = [];
@@ -124,21 +128,7 @@ Character.prototype.SwitchToAnim = function (animation, mirror) {
 			this.currentAnimation = this.animations[this.currentState][animation];	
 			this.currentAnimation.position = new PIXI.Point(this.x, this.y);
 
-			if (mirror) {
-				if (!this.mirrored) {
-					this.x += this.currentAnimation.width;
-				}
-
-				this.currentAnimation.scale.x = -1
-			} else {
-				if (this.mirrored) {
-					this.x -= this.currentAnimation.width;
-				}
-
-				this.currentAnimation.scale.x = 1;
-			}
-
-			this.mirrored = mirror;
+			this.MirrorAnim(mirror);
 
 			this.currentAnimation.play();
 
@@ -147,33 +137,81 @@ Character.prototype.SwitchToAnim = function (animation, mirror) {
 	}
 }
 
-Character.prototype.Collides = function (delta) {
+Character.prototype.MirrorAnim = function (mirror) {
+	mirror = !(!mirror);
+
+	if (mirror) {
+		if (!this.mirrored) {
+			this.x += this.currentAnimation.width;
+		}
+
+		this.currentAnimation.scale.x = -1
+	} else {
+		if (this.mirrored) {
+			this.x -= this.currentAnimation.width;
+		}
+
+		this.currentAnimation.scale.x = 1;
+	}
+
+	this.mirrored = mirror;
+}
+
+Character.prototype.Collides = function (delta, length) {
 	var collisions;
 
+	var x;
+	var y;
+	var width = this.currentAnimation.width;
+	var height = this.currentAnimation.height;
+
 	if (this.mirrored) {
-		collisions = this.level.Collides(this.x + delta.x - this.currentAnimation.width, this.y + delta.y - this.currentAnimation.height, this.currentAnimation.width, this.currentAnimation.height);
+		x = this.x + delta.x - this.currentAnimation.width;
+		y = this.y + delta.y;
 	} else {
-		collisions = this.level.Collides(this.x + delta.x, this.y + delta.y, this.currentAnimation.width, this.currentAnimation.height);
+		x = this.x + delta.x;
+		y = this.y + delta.y;
 	}
+
+	// console.log(x +  ',' + y + ' | ' + width +'x' + height);
+
+	collisions = this.level.Collides(x, y, width, height);
 
 	if (collisions.collides) {
 		collisions.colliders.forEach(function (collider) {
-			if ((collider.y - (this.y + this.currentAnimation.height)) < 0) {
-				if (delta.x < 0) {
-					var dx = (collider.x + collider.width - (this.x - this.currentAnimation.width))
+			var under = collider.y - (this.y + delta.y + this.currentAnimation.height);
+			// console.log(collider.y + ' < ' + (this.y + this.currentAnimation.height));
+			if (under < 0) {
+				if (under < -(this.level.tile.height / 2)) {
+					if (delta.x < 0) {
+						var dx = (collider.x + collider.width - (this.x - this.currentAnimation.width))
 
-					if (dx > delta.x) {
-						delta.x = dx;
-					}
-				} else if (delta.x > 0) {
-					var dx = collider.x - (this.x + this.currentAnimation.width);
+						if (dx > delta.x) {
+							delta.x = dx;
+						}
+					} else if (delta.x > 0) {
+						var dx = collider.x - (this.x + this.currentAnimation.width);
 
-					if (dx < delta.x) {
-						delta.x = dx;
+						if (dx < delta.x) {
+							delta.x = dx;
+						}
 					}
+				}
+
+				if (this.x + delta.x <= collider.x + this.level.tile.width || this.x + delta.x + this.currentAnimation.width >= collider.x) {
+					var dy = collider.y - (this.y + this.currentAnimation.height);
+
+					if (dy < delta.y && Math.abs(dy) < this.level.tile.height / 2) {
+						delta.y = dy;
+						this.vy = 0;
+					}
+
 				}
 			}
 		}, this);
+	} else if (this.vy === 0) {
+		this.vy = -(this.gravity * length);
+		this.SwitchToAnim('falling', this.mirrored);
 	}
 
 	return delta;
@@ -196,15 +234,31 @@ Character.prototype.Tick = function (length) {
 			this.SwitchToAnim('running');
 		}
 
-		if (!delta.x) {
-			this.SwitchToAnim('idle');
+		if (keydown[keys.space] && this.vy === 0) {
+			this.vy = this.vspeed;
+			this.SwitchToAnim('jumping', this.mirrored);
 		}
 
-		delta = this.Collides(delta);
+		if (this.vy !== 0) {
+			delta.y = -(this.vy * length);
+			this.vy -= this.gravity * length;
+
+			if (this.vy < 0) {
+				this.SwitchToAnim('falling', this.mirrored);
+			}
+		}
+
+		delta = this.Collides(delta, length);
+
+		if (!delta.x && !delta.y) {
+			this.SwitchToAnim('idle', this.mirrored);
+		}
 
 		this.x += delta.x;
+		this.y += delta.y;
 
 		this.currentAnimation.position.x = this.x;
+		this.currentAnimation.position.y = this.y;
 
 	}
 }

@@ -43,6 +43,8 @@ function Level(name, renderer) {
 	this.renderer = renderer;
 	this.container = new PIXI.Container();
 
+	this.container.scale = new PIXI.Point(1,1);
+
 	load.json('levels/' + name + '.json', function (data) {self.Init(data);});
 }
 
