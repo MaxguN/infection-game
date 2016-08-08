@@ -1,160 +1,45 @@
 function Character(x, y, level) {
-	var self = this;
+	Animator.call(this, x, y, level.container);
 
-	this.x = x;
-	this.y = y;
+	var self = this;
 
 	this.vy = 0;
 
 	this.speed = 384; // pixels/second
 	this.vspeed = 576;
 	this.gravity = 2048;
+	this.rateOfFire = 5; // shoots / second
 
-	this.tiles = [];
-	this.tilesets = [];
-	this.animations = [];
-	this.currentAnimation = null;
-	this.mirrored = false;
-	this.currentState = 0;
+	this.delayShoot = 1 / this.rateOfFire; // seconds
+	this.timerShoot = 0;
+
+	this.shotCount = 0;
+	this.shotThreshold = 10;
 
 	this.level = level;
-	this.container = level.container;
 
-	this.isLoaded = false;
-
-	this.listeners = {};
+	this.on('load', function () {
+		self.level.CenterCamera(self.GetCenter());
+	})
 
 	load.json('animations/character.json', function (data) {self.Init(data);});
 }
 
-Character.prototype.Init = function (data) {
-	var self = this;
+Character.prototype = Object.create(Animator.prototype);
+Character.prototype.constructor = Character;
 
+Character.prototype.GetCenter = function () {
+	var center = new PIXI.Point(this.x, this.y);
 
-	data.tilesets.forEach(function (tileset, set) {
-		var stateTiles = [];
-		var index;
-		var texture = new Image();
-		texture.src = 'textures/' + tileset.file
-
-		this.tilesets[set] = {
-			baseTexture : new PIXI.BaseTexture(texture),
-			width : tileset.tilewidth,
-			height : tileset.tileheight
-		};
-
-		this.tiles[0] = [];
-		stateTiles = this.tiles[0];
-
-		for (var i = 0; i < tileset.imagewidth; i += tileset.tilewidth) {
-			if (data.stateful) {
-				this.tiles[i / tileset.tilewidth] = [];
-				stateTiles = this.tiles[this.tiles.length - 1];
-			}
-			for (var j = 0; j < tileset.imageheight; j += tileset.tileheight) {
-				if (data.stateful) {
-					index = tileset.firstgid + j / tileset.tileheight;
-				} else {
-					index = tileset.firstgid + j / tileset.tileheight + i / tileset.tilewidth * (tileset.imageheight / tileset.tileheight);
-				}
-				
-				stateTiles[index] = {
-					texture : new PIXI.Texture(this.tilesets[set].baseTexture, new PIXI.Rectangle(i, j, tileset.tilewidth, tileset.tileheight)),
-					set : set
-				};
-			}
-		}
-
-	}, this);
-
-	var textureSet = [];
-	var stateCount = 1;
-
-	if (data.stateful) {
-		stateCount = data.states;
-	}
-
-	for (var state = 0; state < stateCount; state += 1) {
-		this.animations[state] = {};
-
-		for (var animation in data.animations) {
-			textureSet = [];
-
-			data.animations[animation].frames.forEach(function (frame) {
-				textureSet.push(this.tiles[state][frame.tile].texture);
-			}, this);
-
-			this.animations[state][animation] = new PIXI.extras.MovieClip(textureSet);
-			this.animations[state][animation].animationSpeed = 0.15;
-		}
-	}
-
-	console.log(data.default);
-
-	this.currentAnimation = this.animations[this.currentState][data.default];
-	this.currentAnimation.position = new PIXI.Point(this.x, this.y);
-	this.currentAnimation.play();
-
-	this.container.addChild(this.currentAnimation);
-
-	this.loaded();
-}
-
-Character.prototype.addListener = function (eventType, callback) {
-	if (!this.listeners[eventType]) {
-		this.listeners[eventType] = [];
-	}
-
-	this.listeners[eventType].push(callback);
-}
-
-Character.prototype.loaded = function () {
-	this.isLoaded = true;
-
-	if (this.listeners['load']) {
-		this.listeners['load'].forEach(function (callback) {
-			callback();
-		}, this);
-	}
-}
-
-Character.prototype.SwitchToAnim = function (animation, mirror) {
-	mirror = !(!mirror);
-
-	if (this.animations[this.currentState][animation]) {
-		if (this.animations[this.currentState][animation] !== this.currentAnimation || mirror !== this.mirrored) {
-			this.container.removeChild(this.currentAnimation);
-
-			this.currentAnimation = this.animations[this.currentState][animation];	
-			this.currentAnimation.position = new PIXI.Point(this.x, this.y);
-
-			this.MirrorAnim(mirror);
-
-			this.currentAnimation.play();
-
-			this.container.addChild(this.currentAnimation);
-		}
-	}
-}
-
-Character.prototype.MirrorAnim = function (mirror) {
-	mirror = !(!mirror);
-
-	if (mirror) {
-		if (!this.mirrored) {
-			this.x += this.currentAnimation.width;
-		}
-
-		this.currentAnimation.scale.x = -1
+	if (this.mirrored) {
+		center.x -= this.currentAnimation.width / 2;
 	} else {
-		if (this.mirrored) {
-			this.x -= this.currentAnimation.width;
-		}
-
-		this.currentAnimation.scale.x = 1;
+		center.x += this.currentAnimation.width / 2;
 	}
 
-	this.mirrored = mirror;
+	center.y -= this.currentAnimation.height / 2;
+
+	return center;
 }
 
 Character.prototype.Collides = function (delta, length) {
@@ -226,17 +111,29 @@ Character.prototype.Tick = function (length) {
 
 		if (keydown[keys.left]) {
 			delta.x -= this.speed * length;
-			this.SwitchToAnim('running', true);
+			if (this.timerShoot > 0) {
+				this.SwitchToAnim('shootrunning', true);
+			} else {
+				this.SwitchToAnim('running', true);
+			}
 		}
 
 		if (keydown[keys.right]) {
 			delta.x += this.speed * length;
-			this.SwitchToAnim('running');
+			if (this.timerShoot > 0) {
+				this.SwitchToAnim('shootrunning');
+			} else {
+				this.SwitchToAnim('running');
+			}
 		}
 
-		if (keydown[keys.space] && this.vy === 0) {
+		if (keydown[keys.x] && this.vy === 0) {
 			this.vy = this.vspeed;
-			this.SwitchToAnim('jumping', this.mirrored);
+			if (this.timerShoot > 0) {
+				this.SwitchToAnim('shootjumping', this.mirrored);
+			} else {
+				this.SwitchToAnim('jumping', this.mirrored);
+			}
 		}
 
 		if (this.vy !== 0) {
@@ -244,14 +141,47 @@ Character.prototype.Tick = function (length) {
 			this.vy -= this.gravity * length;
 
 			if (this.vy < 0) {
-				this.SwitchToAnim('falling', this.mirrored);
+				if (this.timerShoot > 0) {
+					this.SwitchToAnim('shootfalling', this.mirrored);
+				} else {
+					this.SwitchToAnim('falling', this.mirrored);
+				}
 			}
 		}
 
 		delta = this.Collides(delta, length);
 
 		if (!delta.x && !delta.y) {
-			this.SwitchToAnim('idle', this.mirrored);
+			if (this.timerShoot > 0) {
+				this.SwitchToAnim('shooting', this.mirrored);
+			} else {
+				this.SwitchToAnim('idle', this.mirrored);
+			}
+		}
+
+		if (keydown[keys.c] && this.timerShoot <= 0) {
+			switch (this.currentAnimationName) {
+				case ('idle') :
+					this.SwitchToAnim('shooting', this.mirrored);
+					break;
+				case ('running') :
+					this.SwitchToAnim('shootrunning', this.mirrored);
+					break;
+				case ('jumping') :
+					this.SwitchToAnim('shootjumping', this.mirrored);
+					break;
+				case ('falling') :
+					this.SwitchToAnim('shootfalling', this.mirrored);
+					break;
+			}
+
+			this.level.bullets.push(new Laser(this.x, this.y, this.mirrored, this.state, this.level));
+			this.shotCount += 1;
+
+			this.currentState = Math.min(Math.floor(this.shotCount / this.shotThreshold), 3);
+			this.UpdateAnim(this.currentAnimationName, this.mirrored);
+
+			this.timerShoot = this.delayShoot;
 		}
 
 		this.x += delta.x;
@@ -260,5 +190,10 @@ Character.prototype.Tick = function (length) {
 		this.currentAnimation.position.x = this.x;
 		this.currentAnimation.position.y = this.y;
 
+		this.level.UpdateCamera(this.GetCenter());
+
+		if (this.timerShoot > 0) {
+			this.timerShoot -= length;
+		}
 	}
 }

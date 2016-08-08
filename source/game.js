@@ -2,7 +2,7 @@ var ticker = PIXI.ticker.shared;
 ticker.autoStart = false;
 ticker.stop();
 
-var renderer = new PIXI.WebGLRenderer(1344, 576);
+var renderer = new PIXI.WebGLRenderer(800, 450);
 renderer.backgroundColor = 0xFFFFFF;
 document.body.appendChild(renderer.view);
 

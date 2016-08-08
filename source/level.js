@@ -25,6 +25,8 @@ function Level(name, renderer) {
 	this.character = {};
 	this.end = -1;
 
+	this.bullets = [];
+
 	this.loaded = false;
 	this.listeners = {
 		ready : [],
@@ -179,9 +181,21 @@ Level.prototype.win = function() {
 	});
 };
 
-Level.prototype.updatecamera = function(x, y) {
-	// this.window.x = Math.min(Math.max(0, x - canvas.width / 2), this.width * this.tile.width - canvas.width);
-	// this.window.y = Math.min(Math.max(0, y - canvas.height / 2), this.height * this.tile.height - canvas.height);
+Level.prototype.CenterCamera = function (point) {
+	this.container.x = -Math.min(Math.max(0, point.x - this.renderer.width / 2), this.container.width - this.renderer.width);
+	this.container.y = -Math.min(Math.max(0, point.y - this.renderer.height / 2), this.container.height - this.renderer.height);
+}
+
+Level.prototype.UpdateCamera = function(point) {
+	var space = 32;
+
+	if (-this.container.x > point.x + space - this.renderer.width / 2) { // left border
+		this.container.x = -Math.min(Math.max(0, point.x + space - this.renderer.width / 2), this.container.width - this.renderer.width);
+	} else if (-this.container.x < point.x - space - this.renderer.width / 2) { // right border
+		this.container.x = -Math.min(Math.max(0, point.x - space - this.renderer.width / 2), this.container.width - this.renderer.width);
+	}
+ 	
+	this.container.y = -Math.min(Math.max(0, point.y - this.renderer.height / 2), this.container.height - this.renderer.height);
 };
 
 Level.prototype.Collides = function(x, y, width, height) {
@@ -221,6 +235,15 @@ Level.prototype.Collides = function(x, y, width, height) {
 		colliders : collisions
 	}
 };
+
+Level.prototype.RemoveBullet = function (bullet) {
+	for (var i = 0; i < this.bullets.length; i += 1) {
+		if (this.bullets[i] === bullet) {
+			this.bullets.splice(i, 1);
+			break;
+		}
+	}
+}
 
 // Level.prototype.checkfinish = function(x, y) {
 // 	x = Math.floor(x / this.tile.width);
@@ -263,6 +286,9 @@ Level.prototype.Tick = function(length) {
 		var deltaTime = PIXI.ticker.shared.elapsedMS / 1000;
 
 		this.character.Tick(deltaTime);
+		this.bullets.forEach(function (bullet) {
+			bullet.Tick(deltaTime);
+		});
 
 		this.Draw();
 	}
