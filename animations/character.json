@@ -3,7 +3,7 @@
 	"animations" : {
 		"idle" : {
 			"frames" : [
-				{"tile" : 0, "points" : [{"x" : 16,"y" : 16}]}
+				{"tile" : 0, "points" : [{"x" : 0, "y" : 0}]}
 			],
 			"speed" : 60,
 			"loop" : false,
@@ -11,10 +11,10 @@
 		},
 		"running" : {
 			"frames" : [
-				{"tile" : 1, "points" : [{"x" : 16,"y" : 16}]},
-				{"tile" : 2, "points" : [{"x" : 16,"y" : 16}]},
-				{"tile" : 3, "points" : [{"x" : 16,"y" : 16}]},
-				{"tile" : 2, "points" : [{"x" : 16,"y" : 16}]}
+				{"tile" : 1, "points" : [{"x" : 0,"y" : 0}]},
+				{"tile" : 2, "points" : [{"x" : 0,"y" : 0}]},
+				{"tile" : 3, "points" : [{"x" : 0,"y" : 0}]},
+				{"tile" : 2, "points" : [{"x" : 0,"y" : 0}]}
 			],
 			"speed" : 60,
 			"loop" : false,
@@ -22,7 +22,7 @@
 		},
 		"jumping" : {
 			"frames" : [
-				{"tile" : 4, "points" : [{"x" : 16,"y" : 16}]}
+				{"tile" : 4, "points" : [{"x" : 0,"y" : 0}]}
 			],
 			"speed" : 60,
 			"loop" : false,
@@ -30,7 +30,7 @@
 		},
 		"falling" : {
 			"frames" : [
-				{"tile" : 5, "points" : [{"x" : 16,"y" : 16}]}
+				{"tile" : 5, "points" : [{"x" : 0,"y" : 0}]}
 			],
 			"speed" : 60,
 			"loop" : false,
@@ -38,7 +38,7 @@
 		},
 		"shooting" : {
 			"frames" : [
-				{"tile" : 6, "points" : [{"x" : 16,"y" : 16}]}
+				{"tile" : 6, "points" : [{"x" : 26,"y" : 11}]}
 			],
 			"speed" : 60,
 			"loop" : false,
@@ -46,10 +46,10 @@
 		},
 		"shootrunning" : {
 			"frames" : [
-				{"tile" : 7, "points" : [{"x" : 16,"y" : 16}]},
-				{"tile" : 8, "points" : [{"x" : 16,"y" : 16}]},
-				{"tile" : 9, "points" : [{"x" : 16,"y" : 16}]},
-				{"tile" : 8, "points" : [{"x" : 16,"y" : 16}]}
+				{"tile" : 7, "points" : [{"x" : 27,"y" : 12}]},
+				{"tile" : 8, "points" : [{"x" : 27,"y" : 12}]},
+				{"tile" : 9, "points" : [{"x" : 27,"y" : 12}]},
+				{"tile" : 8, "points" : [{"x" : 27,"y" : 12}]}
 			],
 			"speed" : 60,
 			"loop" : false,
@@ -57,7 +57,7 @@
 		},
 		"shootjumping" : {
 			"frames" : [
-				{"tile" : 10, "points" : [{"x" : 16,"y" : 16}]}
+				{"tile" : 10, "points" : [{"x" : 29,"y" : 11}]}
 			],
 			"speed" : 60,
 			"loop" : false,
@@ -65,7 +65,7 @@
 		},
 		"shootfalling" : {
 			"frames" : [
-				{"tile" : 11, "points" : [{"x" : 16,"y" : 16}]}
+				{"tile" : 11, "points" : [{"x" : 24,"y" : 11}]}
 			],
 			"speed" : 60,
 			"loop" : false,

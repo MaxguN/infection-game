@@ -70,7 +70,9 @@ Animator.prototype.Init = function (data) {
 			textureSet = [];
 
 			data.animations[animation].frames.forEach(function (frame) {
-				textureSet.push(this.tiles[state][frame.tile].texture);
+				var currentTexture = this.tiles[state][frame.tile].texture;
+				currentTexture.points = frame.points;
+				textureSet.push(currentTexture);
 			}, this);
 
 			this.animations[state][animation] = new PIXI.extras.MovieClip(textureSet);
@@ -106,6 +108,20 @@ Animator.prototype.loaded = function () {
 			callback();
 		}, this);
 	}
+}
+
+Animator.prototype.GetCenter = function () {
+	var center = new PIXI.Point(this.x, this.y);
+
+	if (this.mirrored) {
+		center.x -= this.currentAnimation.width / 2;
+	} else {
+		center.x += this.currentAnimation.width / 2;
+	}
+
+	center.y -= this.currentAnimation.height / 2;
+
+	return center;
 }
 
 Animator.prototype.UpdateAnim = function (animation, mirror) {

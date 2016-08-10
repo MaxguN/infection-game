@@ -6,8 +6,8 @@ function Character(x, y, level) {
 	this.vy = 0;
 
 	this.speed = 384; // pixels/second
-	this.vspeed = 576;
-	this.gravity = 2048;
+	this.vspeed = 1024;
+	this.gravity = 4096;
 	this.rateOfFire = 5; // shoots / second
 
 	this.delayShoot = 1 / this.rateOfFire; // seconds
@@ -27,20 +27,6 @@ function Character(x, y, level) {
 
 Character.prototype = Object.create(Animator.prototype);
 Character.prototype.constructor = Character;
-
-Character.prototype.GetCenter = function () {
-	var center = new PIXI.Point(this.x, this.y);
-
-	if (this.mirrored) {
-		center.x -= this.currentAnimation.width / 2;
-	} else {
-		center.x += this.currentAnimation.width / 2;
-	}
-
-	center.y -= this.currentAnimation.height / 2;
-
-	return center;
-}
 
 Character.prototype.Collides = function (delta, length) {
 	var collisions;
@@ -175,7 +161,14 @@ Character.prototype.Tick = function (length) {
 					break;
 			}
 
-			this.level.bullets.push(new Laser(this.x, this.y, this.mirrored, this.state, this.level));
+			var offset = this.currentAnimation.texture.points[0];
+
+			console.log(offset)
+
+			var x = this.x + (this.mirrored ? -1 : 1) * offset.x;
+			var y = this.y + offset.y;
+
+			this.level.bullets.push(new Laser(x, y, this.mirrored, this.state, this.level));
 			this.shotCount += 1;
 
 			this.currentState = Math.min(Math.floor(this.shotCount / this.shotThreshold), 3);
@@ -195,5 +188,7 @@ Character.prototype.Tick = function (length) {
 		if (this.timerShoot > 0) {
 			this.timerShoot -= length;
 		}
+
+		// console.log(this.currentAnimation.texture.points);
 	}
 }

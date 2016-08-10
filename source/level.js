@@ -25,6 +25,9 @@ function Level(name, renderer) {
 	this.character = {};
 	this.end = -1;
 
+	this.potions = [];
+	this.objectives = [];
+	this.ennemies = [];
 	this.bullets = [];
 
 	this.loaded = false;
@@ -54,12 +57,18 @@ Level.prototype.Init = function(level) {
 	var self = this;
 
 	var characterid = -1;
+	var potionid = -1;
+	var kittenid = -1;
+	var sheepid = -1;
 
 	this.json = level;
 
 	level.tilesets.forEach(function (tileset, index) {
 		if (tileset.name === 'placeholders') {
 			characterid = tileset.firstgid;
+			potionid = tileset.firstgid + 1;
+			kittenid = tileset.firstgid + 2;
+			sheepid = tileset.firstgid + 3;
 		} else {
 			var uri = tileset.image;
 			var texture = new Image();
@@ -113,10 +122,21 @@ Level.prototype.Init = function(level) {
 				var x = index % layer.width;
 				var y = Math.floor(index / layer.width);
 
-				if (tileid === characterid) {
-					this.origin.x = x * level.tilewidth;
-					this.origin.y = y * level.tileheight;
-					this.character = new Character(this.origin.x, this.origin.y, this);
+				switch (tileid) {
+					case characterid :
+						this.origin.x = x * level.tilewidth;
+						this.origin.y = y * level.tileheight;
+						this.character = new Character(this.origin.x, this.origin.y, this);
+						break;
+					case potionid :
+						this.potions.push(new Potion(x * level.tilewidth, y * level.tileheight, this));
+						break;
+					case kittenid :
+						this.objectives.push(new Objective(x * level.tilewidth, y * level.tileheight, this));
+						break;
+					case sheepid :
+						this.ennemies.push(new Sheep(x * level.tilewidth, y * level.tileheight, this));
+						break;
 				}
 			}, this);
 
@@ -190,12 +210,12 @@ Level.prototype.UpdateCamera = function(point) {
 	var space = 32;
 
 	if (-this.container.x > point.x + space - this.renderer.width / 2) { // left border
-		this.container.x = -Math.min(Math.max(0, point.x + space - this.renderer.width / 2), this.container.width - this.renderer.width);
+		this.container.x = Math.round(-Math.min(Math.max(0, point.x + space - this.renderer.width / 2), this.container.width - this.renderer.width));
 	} else if (-this.container.x < point.x - space - this.renderer.width / 2) { // right border
-		this.container.x = -Math.min(Math.max(0, point.x - space - this.renderer.width / 2), this.container.width - this.renderer.width);
+		this.container.x = Math.round(-Math.min(Math.max(0, point.x - space - this.renderer.width / 2), this.container.width - this.renderer.width));
 	}
  	
-	this.container.y = -Math.min(Math.max(0, point.y - this.renderer.height / 2), this.container.height - this.renderer.height);
+	this.container.y = Math.round(-Math.min(Math.max(0, point.y - this.renderer.height / 2), this.container.height - this.renderer.height));
 };
 
 Level.prototype.Collides = function(x, y, width, height) {
@@ -286,6 +306,10 @@ Level.prototype.Tick = function(length) {
 		var deltaTime = PIXI.ticker.shared.elapsedMS / 1000;
 
 		this.character.Tick(deltaTime);
+		this.ennemies.forEach(function (ennemy) {
+			ennemy.Tick(deltaTime);
+		})
+
 		this.bullets.forEach(function (bullet) {
 			bullet.Tick(deltaTime);
 		});

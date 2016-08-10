@@ -1,0 +1,25 @@
+{
+	"default" : "idle",
+	"animations" : {
+		"idle" : {
+			"frames" : [
+				{"tile" : 0, "points" : [{"x" : 6,"y" : 2}]}
+			],
+			"speed" : 20,
+			"loop" : true,
+			"loopto" : 0
+		}
+	},
+	"tilesets" : [
+		{
+			"file" : "potion.png",
+			"tilewidth" : 32,
+			"tileheight" : 32,
+			"imagewidth" : 32,
+			"imageheight" : 32,
+			"firstgid" : 0
+		}
+	],
+	"stateful" : false,
+	"states" : 0
+}

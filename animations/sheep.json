@@ -1,0 +1,26 @@
+{
+	"default" : "walking",
+	"animations" : {
+		"walking" : {
+			"frames" : [
+				{"tile" : 0, "points" : [{"x" : 6,"y" : 2}]},
+				{"tile" : 1, "points" : [{"x" : 6,"y" : 2}]}
+			],
+			"speed" : 20,
+			"loop" : true,
+			"loopto" : 0
+		}
+	},
+	"tilesets" : [
+		{
+			"file" : "sheep_human.png",
+			"tilewidth" : 32,
+			"tileheight" : 32,
+			"imagewidth" : 32,
+			"imageheight" : 64,
+			"firstgid" : 0
+		}
+	],
+	"stateful" : false,
+	"states" : 0
+}
