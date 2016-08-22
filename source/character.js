@@ -1,5 +1,8 @@
 function Character(x, y, level) {
 	Animator.call(this, x, y, level.container);
+	Collider.call(this, Tags.Player, [
+		Tags.Objective
+	]);
 
 	var self = this;
 
@@ -46,21 +49,25 @@ Character.prototype.Collides = function (delta, length) {
 
 	// console.log(x +  ',' + y + ' | ' + width +'x' + height);
 
-	collisions = this.level.Collides(x, y, width, height);
+	collisions = this.level.Collides(this.GetRectangle());
 
 	if (collisions.collides) {
-		collisions.colliders.forEach(function (collider) {
-			var under = collider.y - (this.y + delta.y + this.currentAnimation.height);
-			// console.log(collider.y + ' < ' + (this.y + this.currentAnimation.height));
-			if (under < 0) {
-				if (under < -(this.level.tile.height / 2)) {
-					if (delta.x < 0) {
+		for (var way in collisions.colliders) {
+			collisions.colliders[way].forEach(function (collider) {
+				var under = (collider.y - (this.y + delta.y + this.currentAnimation.height)) < 0;
+
+				if (way === 'right') {
+					if (under && delta.x < 0) { // left
 						var dx = (collider.x + collider.width - (this.x - this.currentAnimation.width))
 
 						if (dx > delta.x) {
 							delta.x = dx;
 						}
-					} else if (delta.x > 0) {
+					}
+				}
+
+				if (way === 'left') {
+					if (under && delta.x > 0) { // right
 						var dx = collider.x - (this.x + this.currentAnimation.width);
 
 						if (dx < delta.x) {
@@ -69,17 +76,18 @@ Character.prototype.Collides = function (delta, length) {
 					}
 				}
 
-				if (this.x + delta.x <= collider.x + this.level.tile.width || this.x + delta.x + this.currentAnimation.width >= collider.x) {
-					var dy = collider.y - (this.y + this.currentAnimation.height);
+				if (way === 'top') {
+					if (under && this.vy < 0) {
+						var dy = collider.y - (this.y + this.currentAnimation.height);
 
-					if (dy < delta.y && Math.abs(dy) < this.level.tile.height / 2) {
-						delta.y = dy;
-						this.vy = 0;
+						if (dy < delta.y) {
+							delta.y = dy;
+							this.vy = 0;
+						}
 					}
-
 				}
-			}
-		}, this);
+			}, this);
+		}
 	} else if (this.vy === 0) {
 		this.vy = -(this.gravity * length);
 		this.SwitchToAnim('falling', this.mirrored);
@@ -168,7 +176,7 @@ Character.prototype.Tick = function (length) {
 			var x = this.x + (this.mirrored ? -1 : 1) * offset.x;
 			var y = this.y + offset.y;
 
-			this.level.bullets.push(new Laser(x, y, this.mirrored, this.state, this.level));
+			this.level.AddObject(new Laser(x, y, this.mirrored, this.state, this.level));
 			this.shotCount += 1;
 
 			this.currentState = Math.min(Math.floor(this.shotCount / this.shotThreshold), 3);

@@ -1,5 +1,6 @@
 function Objective(x, y, level) {
 	Animator.call(this, x, y, level.container);
+	Collider.call(this, Tags.Objective, []);
 
 	var self = this;
 
@@ -28,11 +29,11 @@ Objective.prototype.Collides = function (delta) {
 	var width = this.currentAnimation.width / 2;
 	var height = this.currentAnimation.height;
 
-	var collisions = this.level.Collides(x, y, width, height);
+	var collisions = this.level.Collides(this.GetRectangle());
 }
 
 Objective.prototype.Tick = function (length) {
 	if (this.isLoaded) {
-		this.Collides(delta);
+		// this.Collides({x:0,y:0});
 	}
 }

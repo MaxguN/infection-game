@@ -1,5 +1,8 @@
 function Sheep(x, y, level) {
 	Animator.call(this, x, y, level.container);
+	Collider.call(this, Tags.Ennemy, [
+		Tags.Objective
+	]);
 
 	var self = this;
 
@@ -28,14 +31,16 @@ Sheep.prototype.Collides = function (delta) {
 	var width = this.currentAnimation.width / 2;
 	var height = this.currentAnimation.height;
 
-	var collisions = this.level.Collides(x, y, width, height);
+	var collisions = this.level.Collides(this.GetRectangle());
 
 	if (collisions.collides) {
-		collisions.colliders.forEach(function (collider) {
-			if (this.y + this.currentAnimation.height > collider.y) {
-				this.speed = -this.speed;
-			}
-		}, this);
+		for (var way in collisions.colliders) {
+			collisions.colliders[way].forEach(function (collider) {
+				if (this.y + this.currentAnimation.height > collider.y) {
+					this.speed = -this.speed;
+				}
+			}, this);
+		}
 	} else {
 		this.speed = -this.speed;
 	}

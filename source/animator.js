@@ -124,6 +124,14 @@ Animator.prototype.GetCenter = function () {
 	return center;
 }
 
+Animator.prototype.GetRectangle = function () {
+	if (this.currentAnimation) {
+		return new PIXI.Rectangle(this.x, this.y, this.currentAnimation.width, this.currentAnimation.height);
+	} else {
+		return new PIXI.Rectangle(this.x, this.y, 0, 0);
+	}
+}
+
 Animator.prototype.UpdateAnim = function (animation, mirror) {
 	if (this.animations[this.currentState] && this.animations[this.currentState][animation]) {
 		if (this.animations[this.currentState][animation] !== this.currentAnimation || mirror !== this.mirrored) {

@@ -1,5 +1,10 @@
 function Laser(x, y, left, damage, level) {
 	Animator.call(this, x, y, level.container);
+	Collider.call(this, Tags.PlayerBullet, [
+		Tags.Ennemy,
+		Tags.EnnemyBullet,
+		Tags.Objective
+	]);
 
 	var self = this;
 
@@ -24,10 +29,10 @@ Laser.prototype.Collides = function (delta) {
 	var width = this.currentAnimation.width;
 	var height = this.currentAnimation.height;
 
-	var collisions = this.level.Collides(x, y, width, height);
+	var collisions = this.level.Collides(this.GetRectangle());
 
 	if (collisions.collides) {
-		this.level.RemoveBullet(this);
+		this.level.RemoveObject(this);
 		this.Erase();
 	}
 }
